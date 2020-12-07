@@ -29,7 +29,6 @@ public class BidController {
 	}
 	
 	@PostMapping
-	//@ResponseBody
 	public int saveBid(@RequestBody Bid bid) {
 		Bid returnedBid = bidService.save(bid);
 		return returnedBid.getId();
@@ -37,8 +36,8 @@ public class BidController {
 	
 	/*@GetMapping("/best")
 	public BidItem returnBestBid(@RequestParam int trade_item_id) {
-		return bidService.returnBestBid();
-	} */
+		return bidService.returnBestBid(trade_item_id);
+	}*/
 	
 	@ExceptionHandler(BidValidationException.class)
 	public ResponseEntity<BidValidationExceptionResponse> 

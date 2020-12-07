@@ -1,7 +1,9 @@
 package com.nibuton.altimeta.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nibuton.altimeta.entities.Bid;
 import com.nibuton.altimeta.entities.BidItem;
@@ -28,7 +30,16 @@ public class BidService implements Service<Bid> {
 	
 	
 	/*public BidItem returnBestBid(int trade_item_id) {
-		return bidItemRepo.getBestBid();
+		
+		List<BidItem> bidItems = bidItemRepo.getBestBid(trade_item_id);
+		
+		if (Optional.ofNullable(bidItems).isPresent()) {
+			return bidItems.get(0);
+		}
+		else {
+			throw new 
+		}
+		
 	}*/
 
 	@Override
@@ -37,15 +48,20 @@ public class BidService implements Service<Bid> {
 		for (BidItem bidItem : bid.getBidItems()) {
 			TradeItem tradeItem = tradeItemRepo.getOne(bidItem.getTrade_item_id());
 			bidItem.setTradeItem(tradeItem);
-			/**
-			 * здесь паттерн
-			 */
+			
+			Integer minPrice = bidItemRepo.getMinPrice(tradeItem.getId());
+			
 			if(bidItem.getPrice() > tradeItemRepo.getInitialPrice(tradeItem.getId())){
 				throw new BidValidationException(1,tradeItem.getId());
-			} 
-			if(bidItem.getPrice() >= bidItemRepo.getMinPrice(tradeItem.getId())){
-				throw new BidValidationException(2,tradeItem.getId());
 			}
+			
+			if (Optional.ofNullable(minPrice).isPresent()) {
+				
+				if(bidItem.getPrice() >= minPrice){
+					throw new BidValidationException(2,tradeItem.getId());
+				}
+			}
+			
 			bidItem.setBid(bid);
 		}
 		
